@@ -5,7 +5,6 @@ from urlparse import urlparse
 from gophish import Gophish
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-
 ADDRESS_LISTEN = '0.0.0.0'
 PORT_LISTEN = 80
 AUTH = False
@@ -173,30 +172,52 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 		self.end_headers()
 
 	def do_OPTIONS(self):
-		if AUTH == True:
-			if (self.headers.getheader('Authorization') == None) or (self.headers.getheader('Authorization') == "Bearer"):
-				self.do_AUTHHEAD()
-				self.wfile.write('no auth header received')
-				pass
-			elif self.headers.getheader('Authorization'):
-				print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
-				pass
+		try:
+			if AUTH == True:
+				if (self.headers.getheader('Authorization') == None) or (self.headers.getheader('Authorization') == "Bearer"):
+					self.do_AUTHHEAD()
+					self.wfile.write('no auth header received')
+					pass
+				elif self.headers.getheader('Authorization'):
+					print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
+					pass
+			else:
+				superrid = query_components["superrid"]
+				mail = getuserwithID(query_components["superrid"])
+				if mail != "ERROR":
+					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
+				else:
+					print "Requete avec un ID Gophish inconnu"
+		except:
+			pass
 
 	def do_HEAD(self):
-		if AUTH == True:
-			self.send_response(200)
-			self.send_header('Content-type', 'text/html')
-			self.end_headers()
-			query = urlparse(self.path).query
-			query_components = dict(qc.split("=") for qc in query.split("&"))
-			superrid = query_components["superrid"]
-			mail = getuserwithID(query_components["superrid"])
-			print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
-			if mail != "ERROR":
-				print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
-				insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0], )
+		try:
+			if AUTH == True:
+				self.send_response(200)
+				self.send_header('Content-type', 'text/html')
+				self.end_headers()
+				query = urlparse(self.path).query
+				query_components = dict(qc.split("=") for qc in query.split("&"))
+				superrid = query_components["superrid"]
+				mail = getuserwithID(query_components["superrid"])
+				print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
+				if mail != "ERROR":
+					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0], )
+				else:
+					print "Requete avec un ID Gophish inconnu"
 			else:
-				print "Requete avec un ID Gophish inconnu"
+				superrid = query_components["superrid"]
+				mail = getuserwithID(query_components["superrid"])
+				if mail != "ERROR":
+					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
+				else:
+					print "Requete avec un ID Gophish inconnu"
+		except:
+			pass
 
 	def do_GET(self):
 		try:
@@ -223,7 +244,7 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 					else:
 						print "Requete avec un ID Gophish inconnu"
 		except:
-			print("Requete recu inconnue")
+			pass
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--generateredirect", help="Permet la generation des fichier de redirection (Landing page Gophish). Exemple : --generateredirect http://vexemple.com")

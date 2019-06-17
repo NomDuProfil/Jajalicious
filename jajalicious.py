@@ -1,6 +1,6 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-import argparse, sys, pytz, os, shutil, subprocess, datetime, csv, zipfile, SocketServer, ssl, base64, urllib3, re
+import argparse, sys, pytz, os, shutil, subprocess, datetime, csv, zipfile, SocketServer, ssl, base64, urllib3, re, errno
 from urlparse import urlparse
 from gophish import Gophish
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -130,6 +130,9 @@ def downloadfile(getobj, rid):
 		shutil.rmtree(BASICFOLDER+rid)
 
 def testparam():
+	if PORT_LISTEN < 1024 and os.geteuid() != 0:
+		print "Droits root necessaire pour ecouter sur "+str(PORT_LISTEN)
+		sys.exit(1)
 	if NAME_MALICIOUS_BASIC_FILE != "":
 		if not os.path.isfile(NAME_MALICIOUS_BASIC_FILE):
 			print "Fichier "+NAME_MALICIOUS_BASIC_FILE+" introuvable"
@@ -273,13 +276,21 @@ if args.auth is not False:
 
 if args.testparam is not False:
 	testparam()
-if AUTH == True:
-	httpd = SocketServer.TCPServer((ADDRESS_LISTEN, int(PORT_LISTEN)), LaSuperGestiondeRequete)
-	httpd.socket = ssl.wrap_socket (httpd.socket, certfile=CERTFILE_PATH, server_side=True)
-else:
-	superserver = (ADDRESS_LISTEN, int(PORT_LISTEN))
-	httpd = HTTPServer(superserver, LaSuperGestiondeRequete)
-print 'JajServ listen on '+ADDRESS_LISTEN+':'+str(PORT_LISTEN)+'...'
-buffer = 1
-sys.stderr = open('logfile.txt', 'w', buffer)
-httpd.serve_forever()
+try:
+	if AUTH == True:
+		httpd = SocketServer.TCPServer((ADDRESS_LISTEN, int(PORT_LISTEN)), LaSuperGestiondeRequete)
+		httpd.socket = ssl.wrap_socket (httpd.socket, certfile=CERTFILE_PATH, server_side=True)
+	else:
+		superserver = (ADDRESS_LISTEN, int(PORT_LISTEN))
+		httpd = HTTPServer(superserver, LaSuperGestiondeRequete)
+	print 'JajServ listen on '+ADDRESS_LISTEN+':'+str(PORT_LISTEN)+'...'
+	buffer = 1
+	sys.stderr = open('logfile.txt', 'w', buffer)
+	httpd.serve_forever()
+except IOError as e:
+	if e[0] == 13: #Permission error
+		print "Droits root necessaire pour ecouter sur "+str(PORT_LISTEN)
+		sys.exit(2)
+	else:
+		print e
+		sys.exit(2)

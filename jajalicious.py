@@ -92,7 +92,6 @@ def setMaliciousfile(nameorigfile, domain, rid):
 		return
 	if (os.path.isdir(BASICFOLDER+rid)) and (BASICFOLDER != (BASICFOLDER+rid)):
 		shutil.rmtree(BASICFOLDER+rid)
-	print rid
 	zip_ref = zipfile.ZipFile(nameorigfile, 'r')
 	zip_ref.extractall(BASICFOLDER+rid)
 	zip_ref.close()

@@ -192,12 +192,13 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 					pass
 			else:
 				superrid = query_components["superrid"]
-				mail = getuserwithID(query_components["superrid"])
-				if mail != "ERROR":
-					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
-					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
-				else:
-					print "Requete avec un ID Gophish inconnu"
+				if superrid != "":
+					mail = getuserwithID(query_components["superrid"])
+					if mail != "ERROR":
+						print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+						insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
+					else:
+						print "Requete avec un ID Gophish inconnu"
 		except:
 			pass
 
@@ -210,21 +211,23 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 				query = urlparse(self.path).query
 				query_components = dict(qc.split("=") for qc in query.split("&"))
 				superrid = query_components["superrid"]
-				mail = getuserwithID(query_components["superrid"])
-				print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
-				if mail != "ERROR":
-					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
-					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0], )
-				else:
-					print "Requete avec un ID Gophish inconnu"
+				if superrid != "":
+					mail = getuserwithID(query_components["superrid"])
+					print base64.b64decode(self.headers.getheader('Authorization').split(" ")[1])
+					if mail != "ERROR":
+						print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+						insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0], )
+					else:
+						print "Requete avec un ID Gophish inconnu"
 			else:
 				superrid = query_components["superrid"]
-				mail = getuserwithID(query_components["superrid"])
-				if mail != "ERROR":
-					print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
-					insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
-				else:
-					print "Requete avec un ID Gophish inconnu"
+				if superrid != "":
+					mail = getuserwithID(query_components["superrid"])
+					if mail != "ERROR":
+						print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+						insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
+					else:
+						print "Requete avec un ID Gophish inconnu"
 		except:
 			pass
 
@@ -235,23 +238,26 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 			if "rid" in query_components:
 				self.send_response(200)
 				rid = query_components["rid"]
-				setMaliciousfile(NAME_MALICIOUS_BASIC_FILE, ADDRESS_SERVER, rid)
-				downloadfile(self, rid)
+				if rid != "":
+					setMaliciousfile(NAME_MALICIOUS_BASIC_FILE, ADDRESS_SERVER, rid)
+					downloadfile(self, rid)
 			#--Pour les anglophones --#
 			elif "riden" in query_components:
 				self.send_response(200)
 				rid = query_components["riden"]
-				setMaliciousfile(NAME_MALICIOUS_BASIC_FILE, ADDRESS_SERVER, rid)
-				downloadfile(self, rid)
+				if rid != "":
+					setMaliciousfile(NAME_MALICIOUS_BASIC_FILE, ADDRESS_SERVER, rid)
+					downloadfile(self, rid)
 			elif "superrid" in query_components:
 				if AUTH != True:
 					superrid = query_components["superrid"]
-					mail = getuserwithID(query_components["superrid"])
-					if mail != "ERROR":
-						print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
-						insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
-					else:
-						print "Requete avec un ID Gophish inconnu"
+					if superrid != "":
+						mail = getuserwithID(query_components["superrid"])
+						if mail != "ERROR":
+							print mail+" a ouvert le fichier "+str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0]
+							insertcsv(mail, str(datetime.datetime.now(pytz.timezone('Canada/Eastern'))).split('.')[0])
+						else:
+							print "Requete avec un ID Gophish inconnu"
 		except:
 			pass
 

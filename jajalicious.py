@@ -88,12 +88,11 @@ def getuserwithID(idgophish):
 	return "ERROR"
 
 def setMaliciousfile(nameorigfile, domain, rid):
-	if BASICFOLDER == (BASICFOLDER+rid):
-		return
-	if not re.match("^[A-Za-z0-9_-]*$", rid):
+	if (not re.match("^[A-Za-z0-9_-]*$", rid)) and (not rid.isalpha()):
 		return
 	if (os.path.isdir(BASICFOLDER+rid)) and (BASICFOLDER != (BASICFOLDER+rid)):
 		shutil.rmtree(BASICFOLDER+rid)
+	print rid
 	zip_ref = zipfile.ZipFile(nameorigfile, 'r')
 	zip_ref.extractall(BASICFOLDER+rid)
 	zip_ref.close()
@@ -125,7 +124,7 @@ def setMaliciousfile(nameorigfile, domain, rid):
 def downloadfile(getobj, rid):
 	if BASICFOLDER == (BASICFOLDER+rid):
 		return
-	if not re.match("^[A-Za-z0-9_-]*$", rid):
+	if (not re.match("^[A-Za-z0-9_-]*$", rid)) and (not rid.isalpha()):
 		return
 	with open(BASICFOLDER+rid+'/'+NAME_MALICIOUS_BASIC_FILE, 'rb') as f:
 		getobj.send_header("Content-Type", 'application/msword')

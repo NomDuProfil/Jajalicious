@@ -88,7 +88,11 @@ def getuserwithID(idgophish):
 	return "ERROR"
 
 def setMaliciousfile(nameorigfile, domain, rid):
-	if (os.path.isdir(BASICFOLDER+rid)):
+	if BASICFOLDER == (BASICFOLDER+rid):
+		return
+	if not re.match("^[A-Za-z0-9_-]*$", rid):
+		return
+	if (os.path.isdir(BASICFOLDER+rid)) and (BASICFOLDER != (BASICFOLDER+rid)):
 		shutil.rmtree(BASICFOLDER+rid)
 	zip_ref = zipfile.ZipFile(nameorigfile, 'r')
 	zip_ref.extractall(BASICFOLDER+rid)
@@ -119,6 +123,10 @@ def setMaliciousfile(nameorigfile, domain, rid):
 	nouveaudoc.close()
 
 def downloadfile(getobj, rid):
+	if BASICFOLDER == (BASICFOLDER+rid):
+		return
+	if not re.match("^[A-Za-z0-9_-]*$", rid):
+		return
 	with open(BASICFOLDER+rid+'/'+NAME_MALICIOUS_BASIC_FILE, 'rb') as f:
 		getobj.send_header("Content-Type", 'application/msword')
 		getobj.send_header("Content-Disposition", 'attachment; filename="{}"'.format(os.path.basename(BASICFOLDER+rid+'/'+NAME_MALICIOUS_BASIC_FILE)))
@@ -126,7 +134,7 @@ def downloadfile(getobj, rid):
 		getobj.send_header("Content-Length", str(fs.st_size))
 		getobj.end_headers()
 		shutil.copyfileobj(f, getobj.wfile)
-	if (os.path.isdir(BASICFOLDER+rid)):
+	if (os.path.isdir(BASICFOLDER+rid)) and (BASICFOLDER != (BASICFOLDER+rid)):
 		shutil.rmtree(BASICFOLDER+rid)
 
 def testparam():

@@ -5,15 +5,15 @@ from urlparse import urlparse
 from gophish import Gophish
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-ADDRESS_LISTEN = '0.0.0.0'
-PORT_LISTEN = 80
+ADDRESS_LISTEN = '127.0.0.1'
+PORT_LISTEN = 8001
 AUTH = False
 ADDRESS_GOPHISH = "https://localhost:3333"
 API_KEY_GOPHISH = "GOPHISH_KEY"
 CAMPAINGN_NAME = ["test"]
 ADDRESS_SERVER = "https://DOMAIN_JAJALICIOUS"
 NAME_MALICIOUS_BASIC_FILE = "WORDFILE.docx"
-NAME_MALICIOUS_BASIC_FILE_EN = ""
+NAME_MALICIOUS_BASIC_FILE_EN = "WORDFILE_English_Version.docx"
 CERTFILE_PATH = "server.pem"
 
 BASICFOLDER=os.getcwd()+"/"
@@ -86,6 +86,33 @@ def getuserwithID(idgophish):
 	except:
 		print "ERROR GOPHISH"
 	return "ERROR"
+
+def clearMetadata(fileRemoveMetadata):
+	if not os.path.isfile(fileRemoveMetadata):
+		print "Fichier "+fileRemoveMetadata+" introuvable"
+		sys.exit(1)
+	zip_ref = zipfile.ZipFile(fileRemoveMetadata, 'r')
+	zip_ref.extractall(BASICFOLDER+"clearMetadata")
+	zip_ref.close()
+	# Nettoyage des metadata
+	with open(BASICFOLDER+"clearMetadata"+'/docProps/core.xml', 'r') as corefile:
+		content = corefile.read()
+	content = re.sub('<dc:creator>.*?</dc:creator>','<dc:creator></dc:creator>', content, flags=re.DOTALL)
+	content = re.sub('<cp:lastModifiedBy>.*?</cp:lastModifiedBy>','<cp:lastModifiedBy></cp:lastModifiedBy>', content, flags=re.DOTALL) 
+	newcorefile = open(BASICFOLDER+"clearMetadata"+'/docProps/core.xml', "w")
+	newcorefile.write(content)
+	newcorefile.close()
+	nouveaudoc = zipfile.ZipFile(BASICFOLDER+fileRemoveMetadata, "w")
+	absolupath = os.path.abspath(BASICFOLDER+"clearMetadata")
+	for dirname, subdirs, files in os.walk(BASICFOLDER+"clearMetadata"):
+		for filename in files:
+			if filename == fileRemoveMetadata:
+				continue
+			absoluname = os.path.abspath(os.path.join(dirname, filename))
+			arcname = absoluname[len(absolupath) + 1:]
+			nouveaudoc.write(absoluname, arcname)
+	nouveaudoc.close()
+	shutil.rmtree(BASICFOLDER+"clearMetadata")
 
 def setMaliciousfile(nameorigfile, domain, rid):
 	if (not re.match("^[A-Za-z0-9_-]*$", rid)) and (not rid.isalpha()):
@@ -288,6 +315,20 @@ if args.auth is not False:
 
 if args.testparam is not False:
 	testparam()
+
+if BASICFOLDER[-1:] != '/':
+	BASICFOLDER = BASICFOLDER+'/'
+
+print "Clear WORD metadata..."
+
+if NAME_MALICIOUS_BASIC_FILE != "":
+	clearMetadata(NAME_MALICIOUS_BASIC_FILE)
+
+if NAME_MALICIOUS_BASIC_FILE_EN != "":
+	clearMetadata(NAME_MALICIOUS_BASIC_FILE_EN)	
+
+print "Done"
+
 try:
 	if AUTH == True:
 		httpd = SocketServer.TCPServer((ADDRESS_LISTEN, int(PORT_LISTEN)), LaSuperGestiondeRequete)

